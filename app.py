@@ -15,7 +15,14 @@ from src.config.crop_config import CropConfig
 from src.config.argument_config import ArgumentConfig
 from src.config.inference_config import InferenceConfig
 
-
+def update_source_preview(file):
+    if file is None:
+        return gr.Image.update(value=None, visible=False), gr.Video.update(visible=False)
+    if is_video(file.name):
+        return gr.Image.update(visible=False), gr.Video.update(value=file.name, visible=True)
+    else:
+        return gr.Image.update(value=file.name, visible=True), gr.Video.update(visible=False)
+        
 def partial_fields(target_class, kwargs):
     return target_class(**{k: v for k, v in kwargs.items() if hasattr(target_class, k)})
 
@@ -82,8 +89,13 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
     gr.HTML(load_description(title_md))
     gr.Markdown(load_description("assets/gradio_description_upload.md"))
     with gr.Row():
-        with gr.Accordion(open=True, label="Source Portrait"):
-            image_input = gr.Image(type="filepath")
+        # with gr.Accordion(open=True, label="Source Portrait"):
+        #     image_input = gr.Image(type="filepath")
+        with gr.Accordion(open=True, label="Source Portrait (Image or Video)"):
+            source_input = gr.File(label="Upload Image or Video")
+            source_image_preview = gr.Image(type="filepath", visible=False)
+            source_video_preview = gr.Video(visible=False)
+            
             gr.Examples(
                 examples=[
                     [osp.join(example_portrait_dir, "s9.jpg")],
@@ -93,7 +105,7 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
                     [osp.join(example_portrait_dir, "s7.jpg")],
                     [osp.join(example_portrait_dir, "s12.jpg")],
                 ],
-                inputs=[image_input],
+                inputs=[source_input],
                 cache_examples=False,
             )
         with gr.Accordion(open=True, label="Driving Video"):
@@ -193,11 +205,19 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
         inputs=[eye_retargeting_slider, lip_retargeting_slider, retargeting_input_image, flag_do_crop_input],
         outputs=[output_image, output_image_paste_back],
         show_progress=True
+    
+        # Update the source preview when a file is uploaded
+        source_input.change(
+        update_source_preview,
+        inputs=[source_input],
+        outputs=[source_image_preview, source_video_preview]
     )
+
+    # Update the process_button_animation click event
     process_button_animation.click(
         fn=gpu_wrapped_execute_video,
         inputs=[
-            image_input,
+            source_input,
             video_input,
             flag_relative_input,
             flag_do_crop_input,
