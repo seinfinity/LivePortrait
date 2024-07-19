@@ -8,7 +8,8 @@ import tyro
 import subprocess
 import gradio as gr
 import os.path as osp
-from src.utils.helper import load_description
+# from src.utils.helper import load_description
+from src.utils.helper import load_description, is_video
 from src.gradio_pipeline import GradioPipeline
 from src.config.crop_config import CropConfig
 from src.config.argument_config import ArgumentConfig
