@@ -14,10 +14,11 @@ from .base_config import PrintableConfig, make_abs_path
 @dataclass(repr=False)  # use repr from PrintableConfig
 class ArgumentConfig(PrintableConfig):
     ########## input arguments ##########
-    source_image: Annotated[str, tyro.conf.arg(aliases=["-s"])] = make_abs_path('../../assets/examples/source/s6.jpg')  # path to the source portrait
-    driving_info:  Annotated[str, tyro.conf.arg(aliases=["-d"])] = make_abs_path('../../assets/examples/driving/d0.mp4')  # path to driving video or template (.pkl format)
+    source: Annotated[str, tyro.conf.arg(aliases=["-s"])] = make_abs_path('../../assets/examples/source/s0.jpg')  # path to the source portrait or video
+    source_folder: Annotated[Optional[str], tyro.conf.arg(aliases=["-sf"])] = None  # 폴더 경로 추가
+    driving: Annotated[str, tyro.conf.arg(aliases=["-d"])] = make_abs_path('../../assets/examples/driving/d0.mp4')  # path to driving video or template (.pkl format)
     output_dir: Annotated[str, tyro.conf.arg(aliases=["-o"])] = 'animations/'  # directory to save output video
-
+    
     ########## inference arguments ##########
     flag_use_half_precision: bool = True  # whether to use half precision (FP16). If black boxes appear, it might be due to GPU incompatibility; set to False.
     flag_crop_driving_video: bool = False  # whether to crop the driving video, if the given driving info is a video
